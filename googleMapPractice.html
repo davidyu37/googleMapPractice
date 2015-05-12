@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+#myMap{
+	width:100%;
+	height: 700px;
+}
+</style>
+<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<script>
+function init() {
+	var mapDiv = document.getElementById('myMap');
+	var mapOption = {
+		center: new google.maps.LatLng(37.820667, -122.478526),
+		zoom: 15,
+		mapTypeId: google.maps.MapTypeId.SATELLITE
+	};
+	var map = new google.maps.Map(mapDiv, mapOption);
+
+	var marker = new google.maps.Marker({
+		position: new google.maps.LatLng(37.820667, -122.478526), 
+		map: map, 
+		title: "Hi,there"
+	});
+
+	var infoWindow = new google.maps.InfoWindow({
+		content: "Hi, there"
+	})
+	google.maps.event.addListener(marker, 'mouseover', function(){
+		infoWindow.open(map, marker);
+	});
+	google.maps.event.addListener(marker, 'mouseout', function(){
+		infoWindow.close(map, marker);
+	});
+}
+window.onload = init;
+</script>
+</head>
+<body>
+<div id = "myMap"></div>
+</body>
+</html>
