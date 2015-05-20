@@ -52,6 +52,71 @@ function init() {
 	};
 	var map = new google.maps.Map(mapDiv, mapOption);
 
+	//polyline coordinates for 大安區
+	var daAnDistrict = [
+		[25.008161, 121.565985],
+		[25.007189, 121.564783],
+		[25.008141, 121.562466],
+		[25.008550, 121.562337],
+		[25.008919, 121.562058],
+		[25.009034, 121.561766],
+		[25.009890, 121.561123],
+		[25.010123, 121.560200],
+		[25.011426, 121.559342],
+		[25.012068, 121.558290],
+		[25.012165, 121.557453],
+		[25.011912, 121.556359],
+		[25.011173, 121.555179],
+		[25.009190, 121.553569],
+		[25.008859, 121.552540],
+		[25.009637, 121.551445],
+		[25.009773, 121.549128],
+		[25.009226, 121.547805],
+		[25.008467, 121.546732],
+		[25.007806, 121.544629],
+		[25.008273, 121.543170],
+		[25.008175, 121.541239],
+		[25.008506, 121.539265],
+		[25.008467, 121.537870],
+		[25.010976, 121.537162],
+		[25.013037, 121.536089],
+		[25.023342, 121.525210],
+		[25.026103, 121.523129],
+		[25.028048, 121.521691],
+		[25.032344, 121.522506],
+		[25.035436, 121.524330],
+		[25.034075, 121.527248],
+		[25.033744, 121.529566],
+		[25.033628, 121.531197],
+		[25.033589, 121.532634],
+		[25.041637, 121.532849],
+		[25.045467, 121.532870],
+		[25.044923, 121.534694],
+		[25.044767, 121.536647],
+		[25.044592, 121.540166],
+		[25.044903, 121.543857],
+		[25.045137, 121.546110],
+		[25.045117, 121.546775],
+		[25.044437, 121.552998],
+		[25.044437, 121.554092],
+		[25.045156, 121.557826],
+		[25.029341, 121.557428],
+		[25.027844, 121.556526],
+		[25.024325, 121.552600],
+		[25.017383, 121.560003],
+		[25.017344, 121.560045],
+		[25.016411, 121.560453],
+		[25.015983, 121.560754],
+		[25.014972, 121.561848],
+		[25.014486, 121.562256],
+		[25.013786, 121.562620],
+		[25.013339, 121.563307],
+		[25.011686, 121.563479],
+		[25.011103, 121.563779],
+		[25.009936, 121.565346],
+		[25.008161, 121.565985]
+	];
+  
 	//courtLocation for 大安區
 	var courtLocation = [
 		['台北科技大學', 25.043233, 121.537378],
@@ -72,8 +137,8 @@ function init() {
 	var infowindow = new google.maps.InfoWindow();
 	//courtMarker stores the marker, i is the counter to loop through the location array
     var courtMarker, i;
-    //loop through courtLocation to create marker and info window for each location
 
+    //convert the original basketball icon to 25x25 px image and center it with anchor.
     var basketballIcon = {
     	url: "basketball.ico",
         size: new google.maps.Size(25, 25),
@@ -81,7 +146,7 @@ function init() {
         anchor: new google.maps.Point(12.5, 12.5),
         scaledSize: new google.maps.Size(25, 25)
     };
-
+    //loop through courtLocation to create marker and info window for each location
     for (i = 0; i < courtLocation.length; i++) {  
       	courtMarker = new google.maps.Marker({
         position: new google.maps.LatLng(courtLocation[i][1], courtLocation[i][2]),
@@ -100,6 +165,24 @@ function init() {
     	(courtMarker, i));
 	}
 
+	//create empty array to handle the values that's suitable for polyline's path property
+	var daAnDistrictCoordinates = [];
+
+	//push each latitude and longitude into the empty array
+	for(var j = 0; j < daAnDistrict.length; j++){
+		daAnDistrictCoordinates.push(new google.maps.LatLng(daAnDistrict[j][0], daAnDistrict[j][1]));
+	};
+	
+	//draws the polyline using the coordinate
+	var daAnDistrictPolyline = new google.maps.Polyline({
+    path: daAnDistrictCoordinates,
+    strokeColor: '#FF0000',
+    strokeOpacity: 0.7,
+    strokeWeight: 3
+    });
+	
+	daAnDistrictPolyline.setMap(map);
+
 	// place the search box on top of the map.(TOP_LEFT)
   	var input = document.getElementById('pac-input');
   	map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
@@ -112,7 +195,6 @@ function init() {
   // pick list. Retrieve the matching places for that item.
   	google.maps.event.addListener(searchBox, 'places_changed', function() {
     var places = searchBox.getPlaces();
-
 
     if (places.length == 0) {
       return;
