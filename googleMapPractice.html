@@ -38,26 +38,45 @@ html, body{
 }
 
 #pac-input:focus {
-        border-color: #4d90fe;
+    border-color: #4d90fe;
 }
 
 .pac-container {
-        font-family: Roboto;
+    font-family: Roboto;
 }
-
+/*css for locateButton*/
+.Btn {
+	margin-top: 16px;
+    width: 100px;
+    height: 32px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #FFF;
+    box-shadow: 5px 8px 5px rgba(0, 0, 0, 0.3);
+    background-color: red;
+    border: none;
+    border-radius: 0 100px 100px 0;
+}
 </style>
 <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true&libraries=places"></script>
+</head>
+<body>
+<input id="pac-input" class="controls" type="text" placeholder="Search Box">
+<div id = "myMap"></div>
+<button id="locateBtn" class="Btn">我在哪？</button>
 <script>
+var map;
+//center is set at 捷運大安站
+var mapCenter = new google.maps.LatLng(25.033259, 121.543565);
 function init() {
 	var markers =[];
 	var mapDiv = document.getElementById('myMap');
 	var mapOption = {
-		//center is set at 捷運大安站
-		center: new google.maps.LatLng(25.033259, 121.543565),
+		center: mapCenter,
 		zoom: 15,
 		mapTypeId: google.maps.MapTypeId.ROADMAP
 	};
-	var map = new google.maps.Map(mapDiv, mapOption);
+	map = new google.maps.Map(mapDiv, mapOption);
 
 	//polyline coordinates for 大安區
 	var daAnDistrict = [
@@ -273,13 +292,60 @@ function init() {
     var bounds = map.getBounds();
     searchBox.setBounds(bounds);
   });
+  //store the button in a variable for convenience
+  var locateButton = document.getElementById('locateBtn');
+  //using .addEventListener instead of google.maps.event.addListener because #locateBtn is outside of the map
+  locateButton.addEventListener("click", getLocation);
+  //put the button on the map with the position of bottom center
+  map.controls[google.maps.ControlPosition.TOP_LEFT].push(locateButton);
 }
+//declare an empty Marker, so we can clear the marker by accessing the setMap property
+var userLocationMarker = new google.maps.Marker();
+//callback this function when button clicked
+var getLocation = function() {
+  //clear the map of markers before adding new one
+  userLocationMarker.setMap(null);
+  userLocationMarker = null;
+  //check if browser supports geolocation
+  //.getCurrentPosition() takes two functions as parameter: one shows position, one show error
+  if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+      //create a new marker at the position of the user, important to not use var, so it can be cleared if we run getLocation again.
+      userLocationMarker = new google.maps.Marker({
+        map: map,
+        position: pos,
+        animation: google.maps.Animation.DROP
+      });
+      //set center of map to user's position and zoom to 14
+      map.setCenter(pos);
+      map.setZoom(18);
+    }, function() {
+      handleNoGeolocation(true);
+    });
+  } else {
+    // Browser doesn't support Geolocation
+    handleNoGeolocation(false);
+  }
+}
+//callback function that handles the errors
+function handleNoGeolocation(errorFlag) {
+  if (errorFlag) {
+    var content = 'Error: The Geolocation service failed.';
+  } else {
+    var content = 'Error: Your browser doesn\'t support geolocation.';
+  }
+  //when there's errorFlag, it displays the error message in a new infowindow
+  var options = {
+    map: map,
+    position: mapCenter,
+    content: content
+  };
 
+  var infowindow = new google.maps.InfoWindow(options);
+  map.setCenter(options.position);
+}
 window.onload = init;
 </script>
-</head>
-<body>
-<input id="pac-input" class="controls" type="text" placeholder="Search Box">
-<div id = "myMap"></div>
 </body>
 </html>
