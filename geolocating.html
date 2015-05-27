@@ -19,13 +19,13 @@
     <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
   </head>
   <body>
-    <button id="locateBtn" class="Btn">Where am I?</button>
+    <button id="locateBtn" class="Btn">我在哪？</button>
     <div id="map-canvas"></div>
     <script>
 //declare a global variable of map, so every function can use it
 var map;
 //declare an empty Marker, so we can clear the marker by accessing the setMap property
-var marker = new google.maps.Marker();
+var userLocationMarker = new google.maps.Marker();
 // Note: When testing on local drive, use internet explorer
 function initialize() {
   //create the initial map
@@ -36,22 +36,27 @@ function initialize() {
   };
   map = new google.maps.Map(document.getElementById('map-canvas'),
       mapOptions);
+  
+ //store the button in a variable for convenience
+  var locateButton = document.getElementById('locateBtn');
   //using .addEventListener instead of google.maps.event.addListener because #locateBtn is outside of the map
-  document.getElementById('locateBtn').addEventListener("click", getLocation);
+  locateButton.addEventListener("click", getLocation);
+  //put the button on the map with the position of bottom center
+  map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(locateButton);
 }
 
 //callback this function when button clicked
 var getLocation = function() {
   //clear the map of markers before adding new one
-  marker.setMap(null);
-  marker = null;
+  userLocationMarker.setMap(null);
+  userLocationMarker = null;
   //check if browser supports geolocation
   //.getCurrentPosition() takes two functions as parameter: one shows position, one show error
   if(navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
       var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
       //create a new marker at the position of the user, important to not use var, so it can be cleared if we run getLocation again.
-      marker = new google.maps.Marker({
+      userLocationMarker = new google.maps.Marker({
         map: map,
         position: pos,
         animation: google.maps.Animation.DROP
