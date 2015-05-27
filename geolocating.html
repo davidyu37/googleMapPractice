@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Geolocation</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+      html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+      }
+
+      .Btn{
+        width: 100px;
+        height: 25px;
+      }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true"></script>
+  </head>
+  <body>
+    <button id="locateBtn" class="Btn">Where am I?</button>
+    <div id="map-canvas"></div>
+    <script>
+//declare a global variable of map, so every function can use it
+var map;
+//declare an empty Marker, so we can clear the marker by accessing the setMap property
+var marker = new google.maps.Marker();
+// Note: When testing on local drive, use internet explorer
+function initialize() {
+  //create the initial map
+  var mapOptions = {
+    center: new google.maps.LatLng(25.033259, 121.543565),
+    zoom: 2,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  };
+  map = new google.maps.Map(document.getElementById('map-canvas'),
+      mapOptions);
+  //using .addEventListener instead of google.maps.event.addListener because #locateBtn is outside of the map
+  document.getElementById('locateBtn').addEventListener("click", getLocation);
+}
+
+//callback this function when button clicked
+var getLocation = function() {
+  //clear the map of markers before adding new one
+  marker.setMap(null);
+  marker = null;
+  //check if browser supports geolocation
+  //.getCurrentPosition() takes two functions as parameter: one shows position, one show error
+  if(navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+      //create a new marker at the position of the user, important to not use var, so it can be cleared if we run getLocation again.
+      marker = new google.maps.Marker({
+        map: map,
+        position: pos,
+        animation: google.maps.Animation.DROP
+      });
+      //set center of map to user's position and zoom to 14
+      map.setCenter(pos);
+      map.setZoom(14);
+    }, function() {
+      handleNoGeolocation(true);
+    });
+  } else {
+    // Browser doesn't support Geolocation
+    handleNoGeolocation(false);
+  }
+}
+//callback function that handles the errors
+function handleNoGeolocation(errorFlag) {
+  if (errorFlag) {
+    var content = 'Error: The Geolocation service failed.';
+  } else {
+    var content = 'Error: Your browser doesn\'t support geolocation.';
+  }
+  //when there's errorFlag, it displays the error message in a new infowindow
+  var options = {
+    map: map,
+    position: new google.maps.LatLng(60, 105),
+    content: content
+  };
+
+  var infowindow = new google.maps.InfoWindow(options);
+  map.setCenter(options.position);
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+    </script>
+  </body>
+</html>
